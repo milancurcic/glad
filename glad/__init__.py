@@ -1,13 +1,19 @@
 #!/usr/bin/env python
 
-class gladDrifter():
+"""
+glad is a Python module that provides a base GladDrifter
+class with methods to read the drifter data from ascii
+file and read and write data from/to NetCDF files.
+"""
+
+class GladDrifter():
     """
     A GLAD drifter class with a method to write out 
     data into a NetCDF file.
     """
     def __init__(self,id):
         """
-        gladDrifter constructor.
+        GladDrifter constructor.
 
         Parameters
         ----------
@@ -116,3 +122,37 @@ class gladDrifter():
         nc.createVariable('v','f8',dimensions=('Time'))[:] = self.v
         nc.createVariable('vel_error','f8',dimensions=('Time'))[:] = self.vel_error
         nc.close()
+
+
+    def travel_distance(self,starttime=None,endtime=None):
+        """ 
+        Returns a distance traveled by a drifter between 
+        starttime and endtime, in kilometers.
+
+        Parameters
+        ----------
+        starttime : datetime instance, optional
+            Start time.
+        endtime : datetime instance, optional
+            End time.
+        """
+        from glad.util import argmin_datetime,haversine
+
+        if not starttime:
+            starttime = self.time[0]
+        
+        if not endtime:
+            endtime = self.time[-1]
+        
+        # start and end indices on drifter's time coordinate
+        n0 = argmin_datetime(starttime,self.time)
+        n1 = argmin_datetime(endtime,self.time)
+
+        #if d.time[n1] < endtime-timedelta(hours=1):
+        #    return 0
+        dist = 0
+        for n in range(n0+1,n1):
+            dist += haversine(self.lon[n],self.lat[n],\
+                              self.lon[n-1],self.lat[n-1])
+
+        return dist
