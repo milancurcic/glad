@@ -29,6 +29,34 @@ def argmin_datetime(time0,time_array):
     return n
 
 
+def get_drifter_ids_from_ascii(filename):
+    """
+    Returns a list of all drifter ids that are available in the GLAD
+    dataset
+
+    Parameters
+    ----------
+    filename : string
+        Path to GLAD ascii data file.
+
+    Returns
+    -------
+    ids : list
+        A list of integers that represent all drifter ids available in 
+        the GLAD data file.
+    """
+    data = [line.rstrip() for line in open(filename,'r').readlines()]
+
+    ids = []
+    for line in data[5::100]:
+        id = int(line[7:10])
+        if not id in ids:
+            ids.append(id)
+
+    return ids
+
+
+
 def haversine(lon1,lat1,lon2,lat2):
     """
     Returns the great circle distance between two points 
@@ -67,3 +95,27 @@ def haversine(lon1,lat1,lon2,lat2):
     dist = c*R_Earth*1E-3
 
     return dist
+
+
+def write_all_to_netcdf(filename,nc_output_path):
+    """
+    Converts all the drifters from ascii to NetCDF. This is a 
+    recommended first step.
+
+    Parameters
+    ----------
+    filename : string
+        Path to GLAD ascii data file.
+    nc_output_path : string
+        Path for NetCDF output files.   
+    """
+    from glad import GladDrifter
+
+    glad_ids = get_drifter_ids_from_ascii(filename)
+
+    for id in glad_ids:
+        d = GladDrifter(id)
+        print 'glad: Converting drifter '+str(id)
+        d.read_from_ascii(filename)
+        d.write_to_netcdf(nc_output_path
+                          + '/glad_drifter_'+'%3.3i' % id+'.nc')
