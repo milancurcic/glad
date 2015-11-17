@@ -76,6 +76,49 @@ def distance(d1,d2,time):
     return dist
 
 
+def ellipse_fit(drifters,time):
+    """
+    Returns center of mass and ellipse major and minor semi-axes 
+    for a given list of drifters.
+
+    Parameters
+    ----------
+    drifters : list, ndarray
+        A list of GladDrifter instances.
+ 
+    Returns
+    -------
+    clat : ndarray
+        Latitude of ellipse center.
+    clon : ndarray
+        Longitude of ellipse center. 
+    a : ndarray
+        Major semi-axis in kilometers.
+    b : ndarray
+        Minor semi-axis in kilometers.
+    """
+    import numpy as np
+    from glad.util import argmin_datetime,ellipse_principal_axes,\
+                          lonlat_to_xy
+
+    subset = [d for d in drifters if d.has_time(time)]
+
+    lons = []
+    lats = []
+
+    for d in subset:
+        n = argmin_datetime(time,d.time)
+        lons.append(d.lon[n])
+        lats.append(d.lon[n])
+
+    x,y = lonlat_to_xy(lons,lats)
+        
+    clat,clon = center_of_mass(drifters,time)
+    a,b = ellipse_principal_axes(x,y)
+
+    return clat,clon,a,b
+
+
 def absolute_dispersion(drifters,starttime,time):
     """
     Calculates absolute dispersion A^2, given desired current and 
@@ -185,3 +228,36 @@ def relative_dispersion(drifters,time):
     D2 = np.mean(dist_squared)
 
     return D2
+
+
+def apparent_diffusivity(drifters,starttime,endtime):
+    """
+    Computes apparent diffusivity by fitting ellipses
+    after Okubo (1971) and Poje et al. (2014).
+
+    Parameters
+    ----------
+    drifters : list, ndarray
+        A list of GladDrifter instances.
+    time : datetime instance
+        Time for which we compute apparent_diffusivity
+
+    Returns
+    -------
+    sigma : float
+        Separation scale in kilometers.
+    Ka : float
+        Apparent diffusivity.
+    """
+    import numpy as np 
+
+    lon0,lat0,a,b = ellipse_fit(drifters,starttime)
+    sigma0 = np.sqrt(2*a*b)
+    
+    lon0,lat0,a,b = ellipse_fit(drifters,endtime)
+    sigma = np.sqrt(2*a*b)
+
+    Ka = 0.25*(sigma**2-sigma0**2)\
+             /(endtime-starttime).total_seconds()
+
+    return sigma,Ka

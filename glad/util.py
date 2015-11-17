@@ -29,6 +29,42 @@ def argmin_datetime(time0,time_array):
     return n
 
 
+def ellipse_principal_axes(u,v):
+    """
+    Calculates principal semi-axes and orientation angle of an ellipse
+    given input vector components (u, v).
+
+    Code adapted from Andrew Poje's MATLAB routine.
+
+    Parameters
+    ----------
+    u : float
+        x-component of input vector.
+    v : float
+        x-component of input vector.
+
+    Returns
+    -------
+    a : float
+        Major semi-axis.
+    b : float
+        Major semi-axis.
+    """
+    import numpy as np
+
+    cv = np.cov(u,v)
+
+    # Find major and minor axis amplitudes
+    term1 = cv[0,0]+cv[1,1]
+    term2 = np.sqrt((cv[0,0]-cv[1,1])**2 + 4*cv[1,0]**2)
+
+    a = np.sqrt(0.5*(term1+term2))
+    b = np.sqrt(0.5*(term1-term2))
+
+    return a,b
+
+
+
 def get_drifter_ids_from_ascii(filename):
     """
     Returns a list of all drifter ids that are available in the GLAD
@@ -95,6 +131,44 @@ def haversine(lon1,lat1,lon2,lat2):
     dist = c*R_Earth*1E-3
 
     return dist
+
+
+def lonlat_to_xy(lon,lat):
+    """
+    Converts arrays of longitude and latitude locations
+    to Cartesian x and y arrays in kilometers relative 
+    to the center of mass of the lon, lat arrays.
+
+    Parameters
+    ----------
+    lon : list, ndarray
+        Longitude array.
+    lat : list, ndarray
+        Latitude array.
+
+    Returns
+    -------
+    x : list, ndarray
+        x-distance from center of mass in kilometers.
+    y : list, ndarray
+        y-distance from center of mass in kilometers.
+    """
+    import numpy as np
+
+    lon = np.array(lon)
+    lat = np.array(lat)
+
+    R_Earth = 6.371E3
+    DEG2RAD = np.pi/180.
+    DEG2KM = DEG2RAD*R_Earth
+
+    lon0,lat0 = np.mean(lon),np.mean(lat)
+
+    x = (lon-lon0)*DEG2KM*np.cos(lat*DEG2RAD)
+    y = (lat-lat0)*DEG2KM
+
+    return x,y
+
 
 
 def read_all_from_netcdf(nc_output_path):

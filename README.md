@@ -80,3 +80,20 @@ Relative dispersion (km^2) for the drifter pair at time `t`:
 >>> relative_dispersion([d0,d1],t)
 2993.9901422836929
 ```
+Separation scale sigma in kilometers (a-la Okubo, 1971), 
+and apparent diffusivity (km^2/s) for the whole set
+from August 1 to August 5:
+```python
+>>> apparent_diffusivity(drifters,t0,t)
+(24.766766023451247, 0.00025597066480565465)
+```
+
+### Documentation
+
+The code is self-documented. For details, type:
+
+```python
+>>> import glad
+>>> help(glad)
+>>> help(glad.metrics)
+```
