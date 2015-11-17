@@ -24,13 +24,18 @@ def center_of_mass(drifters,time):
     import numpy as np
     from glad.util import argmin_datetime
 
-    lats = np.array([])
-    lons = np.array([])
+    lats = []
+    lons = []
 
     for d in drifters:
+
+        if not d.has_time(time):
+            continue
+
         n = argmin_datetime(time,d.time)
-        lons = np.append(lons,d.lon[n])
-        lats = np.append(lats,d.lat[n])
+
+        lons.append(d.lon[n])
+        lats.append(d.lat[n])
 
     clat = np.mean(lats)
     clon = np.mean(lons)
@@ -71,34 +76,43 @@ def distance(d1,d2,time):
     return dist
 
 
-def absolute_dispersion(drifters,time,starttime):
+def absolute_dispersion(drifters,starttime,time):
     """
     Calculates absolute dispersion A^2, given desired current and 
     initial time.
 
     Parameters
     ----------
-    drifters : list or ndarray
+    drifters : GladDrifter instance, list, ndarray
         A list or numpy array of GladDrifter instances.
-    time : datetime instance
-        Time at which to compute absolute dispersion.
     starttime : datetime instance
         Start time.
+    time : datetime instance
+        Time at which to compute absolute dispersion.
     
     Returns
     -------
     A2 : float
         Absolute dispersion in km^2.
     """
-    dists = np.array([])
+    import numpy as np
+    from glad.util import argmin_datetime,haversine
+
+    if not isinstance(drifters,list):
+        drifters = [drifters]
+
+    dist_squared = []
 
     for d in drifters:
 
-        n1 = argmin_datetime(t,d.time)
-        n0 = argmin_datetime(t0,d.time)
+        if not (d.has_time(starttime) and d.has_time(time)):
+            continue
 
-        dist_squared = np.append(dist_squared,\
-            haversine(d.lon[n1],d.lat[n1],d.lon[n0],d.lat[n0])**2)
+        n1 = argmin_datetime(time,d.time)
+        n0 = argmin_datetime(starttime,d.time)
+
+        dist_squared.append(haversine(d.lon[n1],d.lat[n1],\
+                                      d.lon[n0],d.lat[n0])**2)
 
     A2 = np.mean(dist_squared)
 
@@ -122,13 +136,19 @@ def cloud_dispersion(drifters,time):
     C2 : float
         Cloud dispersion in km^2.
     """
+    import numpy as np
+    from glad.util import argmin_datetime,haversine
+
     clat,clon = center_of_mass(drifters,time)
 
-    dist_squared = np.array([])
+    dist_squared = []
     for d in drifters:
-        n0 = argmin_datetime(t,d.time)
-        dists = np.append(dist_squared,\
-            haversine(d.lon[n0],d.lat[n0],clon,clat)**2)
+
+        if not d.has_time(time):
+            continue
+
+        n0 = argmin_datetime(time,d.time)
+        dist_squared.append(haversine(d.lon[n0],d.lat[n0],clon,clat)**2)
 
     C2 = np.mean(dist_squared)
 
@@ -137,12 +157,10 @@ def cloud_dispersion(drifters,time):
 
 
 
-def relative_dispersion(drifters):
+def relative_dispersion(drifters,time):
     """
     Relative dispersion D^2, averaged over all 2-pair combinations
     in the given drifter set. 
-
-    Important note: Lengths (and thus time) must be equal for all drifters.
 
     Parameters
     ----------
@@ -153,24 +171,17 @@ def relative_dispersion(drifters):
     -------
     D2 : float
         Relative dispersion in km^2.
-
     """
     from itertools import combinations
+    from glad.util import argmin_datetime
+    import numpy as np
 
-    time = drifters[0].time
+    subset = [d for d in drifters if d.has_time(time)]
+
     dist_squared = []
+    for p in combinations(subset,2):
+        dist_squared.append(distance(p[0],p[1],time)**2)
 
-    for p in combinations(drifters,2):
-
-        pairdist = []
-
-        for n in range(len(time)):
-            pairdist.append(haversine(p[0].lon[n],p[0].lat[n],p[1].lon[n],p[1].lat[n])**2)
-
-        dist_squared.append(pairdist)
-
-    dist_squared = np.array(dist_squared)
-
-    D2 = np.mean(dists,axis=0)
+    D2 = np.mean(dist_squared)
 
     return D2

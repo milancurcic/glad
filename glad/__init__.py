@@ -24,6 +24,26 @@ class GladDrifter():
         self.id = int(id)
 
 
+    def has_time(self,time):
+        """
+        Checks if time is within GLAD drifter time window.
+
+        Parameters
+        ----------
+        time : datetime instance
+            Time to be checked.
+
+        Returns
+        -------
+        valid : boolean
+            True if self.time[0] <= time <= self.time[-1], otherwise
+            False.
+        """ 
+        valid = self.time[0] <= time <= self.time[-1]
+        
+        return valid
+
+
     def read_from_ascii(self,filename):
         """
         Reads GLAD drifter data from ascii file.

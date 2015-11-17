@@ -97,6 +97,33 @@ def haversine(lon1,lat1,lon2,lat2):
     return dist
 
 
+def read_all_from_netcdf(nc_output_path):
+    """
+    Reads all the drifters from NetCDF files.
+
+    Parameters
+    ----------
+    nc_output_path : string
+        Path to NetCDF output files.
+
+    Returns
+    -------
+    drifters : list
+        A list of GladDrifter instances.
+    """
+    from glad import GladDrifter
+    from glob import glob
+
+    drifters = []
+    for ncfile in glob(nc_output_path+'/glad_drifter_*.nc'):
+        id = int(ncfile[-6:-3])
+        d = GladDrifter(id)
+        d.read_from_netcdf(ncfile)
+        drifters.append(d)
+    
+    return drifters
+
+
 def write_all_to_netcdf(filename,nc_output_path):
     """
     Converts all the drifters from ascii to NetCDF. This is a 
