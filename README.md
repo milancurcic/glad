@@ -97,3 +97,7 @@ The code is self-documented. For details, type:
 >>> help(glad)
 >>> help(glad.metrics)
 ```
+
+### Problems?
+
+Please open an issue on this page or e-mail me directly.
