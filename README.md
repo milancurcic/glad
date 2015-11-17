@@ -1,4 +1,4 @@
-# glad
+# glad-0.1.0
 
 Python library for processing and analysis of 
 Grand LAgrangian Depoloyment (GLAD) drifter data.
@@ -7,7 +7,7 @@ Data was collected during the field experiment by the
 of Hydrocarbon in the Environment (CARTHE)]
 (http://carthe.org/).
 CARTHE is funded by [Gulf of Mexico Research Initiative (GoMRI)]
-(http://gulfresearchinitiative.org/)
+(http://gulfresearchinitiative.org/).
 
 ## Getting started
 
