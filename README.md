@@ -49,26 +49,34 @@ From hereon, we can load the data quickly from NetCDF files:
 
 ### Calculating some metrics
 
-```
+Distance (km) between 2 drifters at time t:
+```python
 >>> from glad.metrics import *
 >>> import datetime
 >>> t = datetime.datetime(2012,8,5)
->>> # Distance (km) between 2 drifters at time t:
 >>> d0 = drifters[0]
 >>> d1 = drifters[1]
 >>> distance(d0,d1,t)
 54.71736600279378
->>> # Absolute dispersion (km^2) from August 1 to August 5:
+```
+Absolute dispersion (km^2) for the same pair from August 1 to August 5:
+```python
 >>> t0 = datetime.datetime(2012,8,1)
 >>> absolute_dispersion([d0,d1],t0,t)
 414.97181526613241
->>> # For the whole dataset:
+```
+Absolute dispersion for the whole dataset:
+```python
 >>> absolute_dispersion(drifters,t0,t)
 4091.5763167954137
->>> # Cloud dispersion (km^2) at time t:
+```
+Cloud dispersion (km^2) at time `t`:
+```python
 >>> cloud_dispersion(drifters,t)
 18561.313882889885
->>> # Relative dispersion (km^2) for the drifter pair at time t:
+```
+Relative dispersion (km^2) for the drifter pair at time `t`:
+```python
 >>> relative_dispersion([d0,d1],t)
 2993.9901422836929
 ```
