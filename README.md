@@ -32,6 +32,7 @@ Download the data from the [GRIIDC repository](https://data.gulfresearchinitiati
 >>> for id in glad_ids:
 ...     d = GladDrifter(id)
 ...     d.read_from_ascii('data/GLAD_15min_filtered.dat')
+...     drifters.append(d)
 ```
 To work with many or all GLAD drifters, it can get slow to read them
 from ascii file every time. Writing the data into NetCDF makes for much
