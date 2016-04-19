@@ -1,7 +1,7 @@
 # glad-0.1.0
 
 Python library for processing and analysis of 
-Grand LAgrangian Depoloyment (GLAD) drifter data.
+Grand LAgrangian Deployment (GLAD) drifter data.
 Data was collected during the field experiment by the
 [Consortium for Advanced Research on Transport 
 of Hydrocarbon in the Environment (CARTHE)]
